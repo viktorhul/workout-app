@@ -1,17 +1,18 @@
 const Sequelize = require('sequelize')
 const db = require('../config/database')
 
-const Exercise = db.define('exercise', {
-    exercise_id: {
+const User = db.define('user', {
+    user_id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
+        autoIncrement: true
     },
-    exercise_plan_id: {
-        type: Sequelize.INTEGER,
-    },
-    exercise_name: {
+    username: {
         type: Sequelize.STRING
     },
+    password: {
+        type: Sequelize.STRING
+    }
 })
 
-module.exports = Exercise;
+module.exports = User
