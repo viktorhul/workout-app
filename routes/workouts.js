@@ -21,6 +21,33 @@ router.get('/', async (req, res, next) => {
     }
 })
 
+router.get('/completed/:workout_id', async (req, res, next) => {
+    if (!req.params.workout_id) {
+        const error = new Error('Missing workout_id')
+        error.status = 400
+        return next(error)
+    }
+
+    const workout = await Workout.findOne({ where: { workout_id: req.params.workout_id, user_id: req.user_id } })
+
+    if (!workout) {
+        // incorrect workout_id
+        const error = new Error('Incorrect workout_id')
+        error.status = 400
+        return next(error)
+    }
+
+    const workoutExercises = await WorkoutExercise.findAll({ where: { workout_id: req.params.workout_id } })
+
+    return res.json(workoutExercises.map(w => ({
+        workout_exercise_id: w.workout_exercise_id,
+        workout_id: w.workout_id,
+        exercise_id: w.exercise_id,
+        weight: w.weight,
+        createdAt: w.createdAt
+    })))
+})
+
 router.post('/new/:exercise_id', async (req, res, next) => {
     if (!req.params.exercise_id) {
         const error = new Error('Missing exercise_id')
@@ -95,26 +122,9 @@ router.post('/complete', async (req, res, next) => {
                 db.query("UPDATE workouts SET completed = 1 WHERE workout_id = ?", {
                     replacements: [req.body.workout_id]
                 })
-                return res.json({ ok: true })
             }
-            else {
-                return res.json({ ok: true })
-            }
-            //console.log(data)
+            return res.json({ ok: true })
         })
-
-    // "SET @completed := (SELECT COUNT(*) FROM workout_exercises WHERE workout_id = ?);" req.body.workout_id
-    // "SET @total := (SELECT COUNT(*) FROM exercises WHERE exercise_plan_id = ?);"
-    // "SELECT @completed as completed, @total as total;"
-
-    // db.query("set @completed := (SELECT COUNT(*) FROM workout_exercises WHERE workout_id = ?);set @total := (SELECT COUNT(*) FROM exercises WHERE user_id = ? AND exercise_id IN (SELECT * FROM exercise_workouts WHERE ));SELECT @completed as completed, @total as total;", {
-    //     replacements: [req.body.workout_id]
-    // })
-    //     .then((data) => {
-    //         console.log(data[0])
-    //     })
-
-    // TODO: check if all exercises are complete - complete the workout
 })
 
 module.exports = router

@@ -6,6 +6,9 @@ const PORT = process.env.PORT || 5501
 
 dotenv.config()
 
+const db = require('./config/database')
+db.sync()
+
 const app = express()
 
 app.listen(PORT, () => console.log(`Listening on port ${PORT}`))

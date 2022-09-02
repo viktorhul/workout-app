@@ -50,7 +50,12 @@ router.get('/:exercise_id', async (req, res, next) => {
         replacements: [req.params.exercise_id, req.user_id]
     })
 
-    return res.json({ data: results })
+    return res.json({
+        data: results.map(r => ({
+            exercise_id: r.exercise_id,
+            exercise_name: r.exercise_name
+        }))
+    })
 })
 
 router.post('/:exercise_plan_id', async (req, res, next) => {
